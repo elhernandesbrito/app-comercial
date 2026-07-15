@@ -1,107 +1,112 @@
-let clients = [
-  {
-    id: 1,
-    name: 'Mercado Central',
-    city: 'Castanhal',
-  },
-  {
-    id: 2,
-    name: 'Comercial Oliveira',
-    city: 'Paragominas',
-  },
-];
+const Client = require("../models/Client");
 
-const getClients = (req, res) => {
-  res.json(clients);
+const getClients = async (req, res) => {
+  try {
+    const clients = await Client.find();
+
+    res.status(200).json(clients);
+  } catch (error) {
+    res.status(500).json({
+      message: "Erro ao buscar clientes.",
+      error: error.message,
+    });
+  }
 };
 
-const getClientById = (req, res) => {
-  const { id } = req.params;
+const getClientById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const client= await Client.findById(id);
 
-  const client = clients.find(
-    (client) => client.id === Number(id)
-  );
+    if (!client) {
+      return res.status(404).json({
+        message:'Cliente não encontrado',
+      });
+    }
+    return res.status(200).json(client);
+  }catch(error) {
+    return res.status(500).json({
+      message: 'Erro ao buscar cliente.',
+      error: error.message,
+    });
+  }
+};
 
-  if (!client) {
-    return res.status(404).json({
-      message: 'Cliente não encontrado',
+const createClient = async (req, res) => {
+  try {
+    const { name, city, phone } = req.body;
+
+    const newClient = await Client.create({
+      name,
+      city,
+      phone,
+    });
+
+    res.status(201).json(newClient);
+  } catch (error) {
+    res.status(500).json({
+      message: "Erro ao cadastrar cliente.",
+      error: error.message,
+    });
+  }
+};
+
+const updateClient = async (req, res) => {
+  try {
+    const {id} = req.params;
+    const { name, city, phone } = req.body;
+
+    const client = await Client.findByIdAndUpdate(
+      id,
+      {
+        name,
+        city,
+        phone,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    if (!client) {
+      return res.status(404).json({
+        message: 'Cliente não encontrado',
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Cliente atualizado com sucesso',
+      client,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Erro ao atualizar cliente.',
+      error: error.message,
     });
   }
 
-  return res.json(client);
 };
 
-const createClient = (req, res) => {
-  const {name, city} = req.body;
+const deleteClient = async (req, res) => {
+  try {
+    const {id} = req.params;
+    const client = await Client.findByIdAndDelete(id);
 
-  if (!name || !city) {
-    return res.status(400).json({
-      message: 'Nome e cidade são obrigatórios',
+    if (!client) {
+      return res.status(404).json({
+        message: 'Cliente não encontrado',
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Cliente removido com sucesso',
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Erro ao remover cliente.',
+      error: error.message,
     });
   }
-
-  const newClient = {
-    id: clients.length + 1,
-    name,
-    city,
-  };
-
-  clients.push(newClient);
-
-  return res.status(201).json({
-    message: 'Cliente criado com sucesso',
-    client: newClient,
-  });
-};
-
-const updateClient = (req, res) => {
-  const { id } = req.params;
-  const { name, city } = req.body;
-
-  const client = clients.find(
-    (client) => client.id === Number(id)
-  );
-
-  if (!client) {
-    return res.status(404).json({
-      message: 'Cliente não encontrado',
-    });
-  }
-
-  if (name) {
-    client.name = name;
-  }
-
-  if (city) {
-    client.city = city;
-  }
-
-  return res.json({
-    message: 'Cliente atualizado com sucesso',
-    client,
-  });
-};
-
-const deleteClient = (req, res) => {
-  const {id} = req.params;
-
-  const client = clients.find(
-    (client) => client.id === Number(id)
-  );
-
-  if (!client) {
-    return res.status(404).json({
-      message: 'Cliente não encontrado',
-    });
-  }
-
-  clients = clients.filter(
-    (client) => client.id !== Number(id)
-  );
-
-  return res.json({
-    messasge: 'Cliente removido com sucesso',
-  });
 };
 
 module.exports = {
