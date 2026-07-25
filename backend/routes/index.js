@@ -1,5 +1,7 @@
 const express = require('express');
 const clientsRoutes = require('./clients');
+const productsRoutes = require('./products');
+
 const router = express.Router();
 
 
@@ -10,5 +12,6 @@ router.get('/', (req, res) => {
 });
 
 router.use('/clients', clientsRoutes);
+router.use('/products', productsRoutes)
 
 module.exports = router;
