@@ -1,16 +1,16 @@
 const express = require('express');
 
-const router = express.Router();
-
 const {
-  getAllSellers,
+  getSellers,
   getSellerById,
   createSeller,
   updateSeller,
   deleteSeller,
 } = require('../controllers/sellersController');
 
-router.get('/', getAllSellers);
+const router = express.Router();
+
+router.get('/', getSellers);
 
 router.get('/:id', getSellerById);
 

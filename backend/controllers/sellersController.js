@@ -1,50 +1,119 @@
-const Seller = require('../models/Seller');
+const Seller = require("../models/Seller");
 
 // Listar todos os vendedores
-const getAllSellers = async (req, res) => {
+const getSellers = async (req, res) => {
   try {
     const sellers = await Seller.find();
 
-    res.status(200).json(sellers);
+    return res.status(200).json(sellers);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: "Erro ao buscar vendedores.",
+      error: error.message,
+    });
   }
 };
 
 // Buscar vendedor por ID
 const getSellerById = async (req, res) => {
   try {
-    const seller = await Seller.findById(req.params.id);
+    const { id } = req.params;
+
+    const seller = await Seller.findById(id);
 
     if (!seller) {
       return res.status(404).json({
-        message: 'Vendedor não encontrado.'
+        message: "Vendedor não encontrado.",
       });
     }
 
-    res.status(200).json(seller);
+    return res.status(200).json(seller);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: "Erro ao buscar vendedor.",
+      error: error.message,
+    });
   }
 };
 
-// Criar vendedor
+// Cadastrar vendedor
 const createSeller = async (req, res) => {
   try {
-    const seller = await Seller.create(req.body);
+    const {
+      name,
+      cpf,
+      registration,
+      phone,
+      email,
+      address,
+      city,
+      state,
+      hireDate,
+      photoUrl,
+      notes,
+      active,
+    } = req.body;
 
-    res.status(201).json(seller);
+    const seller = await Seller.create({
+      name,
+      cpf,
+      registration,
+      phone,
+      email,
+      address,
+      city,
+      state,
+      hireDate,
+      photoUrl,
+      notes,
+      active,
+    });
+
+    return res.status(201).json(seller);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({
+      message: "Erro ao cadastrar vendedor.",
+      error: error.message,
+    });
   }
 };
 
 // Atualizar vendedor
 const updateSeller = async (req, res) => {
   try {
+    const { id } = req.params;
+
+    const {
+      name,
+      cpf,
+      registration,
+      phone,
+      email,
+      address,
+      city,
+      state,
+      hireDate,
+      photoUrl,
+      notes,
+      active,
+    } = req.body;
+
     const seller = await Seller.findByIdAndUpdate(
-      req.params.id,
-      req.body,
+      id,
+      {
+        name,
+        cpf,
+        registration,
+        phone,
+        email,
+        address,
+        city,
+        state,
+        hireDate,
+        photoUrl,
+        notes,
+        active,
+      },
       {
         new: true,
         runValidators: true,
@@ -53,37 +122,48 @@ const updateSeller = async (req, res) => {
 
     if (!seller) {
       return res.status(404).json({
-        message: 'Vendedor não encontrado.'
+        message: "Vendedor não encontrado.",
       });
     }
 
-    res.status(200).json(seller);
+    return res.status(200).json({
+      message: "Vendedor atualizado com sucesso.",
+      seller,
+    });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({
+      message: "Erro ao atualizar vendedor.",
+      error: error.message,
+    });
   }
 };
 
 // Excluir vendedor
 const deleteSeller = async (req, res) => {
   try {
-    const seller = await Seller.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
+
+    const seller = await Seller.findByIdAndDelete(id);
 
     if (!seller) {
       return res.status(404).json({
-        message: 'Vendedor não encontrado.'
+        message: "Vendedor não encontrado.",
       });
     }
 
-    res.status(200).json({
-      message: 'Vendedor removido com sucesso.'
+    return res.status(200).json({
+      message: "Vendedor removido com sucesso.",
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: "Erro ao remover vendedor.",
+      error: error.message,
+    });
   }
 };
 
 module.exports = {
-  getAllSellers,
+  getSellers,
   getSellerById,
   createSeller,
   updateSeller,
